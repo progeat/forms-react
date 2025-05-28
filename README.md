@@ -1,54 +1,110 @@
-# React + TypeScript + Vite
+# Реализация формы входа и регистрации
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Реализация форм входа и регистрации. Реализация собственного компонета input
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Реализовать два компонента: Signin и Signup и собственный компонент input
 
-## Expanding the ESLint configuration
+### Суть задачи
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Необходимо реализовать компоненты: Signin и Signup и собственный компонент input
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+В компоненте <Signin /> необходимо сделать форму, в которой есть `<input type="email">`, `<input type="password">` и кнопка “Войти”.
+
+Также компонент в props принимает функцию onSubmit(), в ее аргументы необходимо передать значения полей после отправки формы.
+
+Тоже самое нужно сделать для компонента <Signup />, но полей будет больше:
+
+- Имя
+- Ник
+- Почта
+- Пол (с помощью `<input type="radio">`)
+- Пароль
+- Повторить пароль
+
+В формах используйте собственный компонент для `<input>`, который можно будет настраивать с помощью props. Пример такого поля ввода: https://mantine.dev/core/text-input/ (Необходимо реализовать все настройки)
+
+Поле «Ник» должно начинаться с символа «@», но вместо «@» должно быть возможно использовать любую иконку, переданную через prop icon. Placeholder задаётся непосредственно для input-элемента
+
+1. Делает запрос по переданной url ссылке для получения данных
+
+### Решение:
+
+```typescript
+import type { InputHTMLAttributes, ReactNode } from 'react';
+import styles from './text-input.module.css';
+import cn from 'classnames';
+
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+interface TextInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'url'
+    | 'number'
+    | 'radio';
+  label?: string;
+  description?: string;
+  // value?: string;
+  checked?: boolean;
+  error?: string | null;
+  required?: boolean;
+  icon?: ReactNode;
+  size?: Size;
+  radius?: Size;
+}
+
+export const TextInput = (props: TextInputProps) => {
+  const {
+    type,
+    label,
+    description,
+    error,
+    required,
+    icon,
+    size = 'md',
+    radius = 'xs',
+    ...rest
+  } = props;
+
+  return (
+    <div className={styles.textInput}>
+      {label && (
+        <label className={cn(styles.label, styles[size])}>
+          {label} {required && <span className={styles.required}>*</span>}
+        </label>
+      )}
+      {description && (
+        <p className={cn(styles.description, styles[`font-small-${size}`])}>
+          {description}
+        </p>
+      )}
+      <div className={styles.inputWrapper}>
+        {icon && <div>{icon}</div>}
+        <input
+          className={cn(styles.input, styles[size], {
+            [styles.error]: error,
+            [styles[`radius-${radius}`]]: radius,
+          })}
+          type={type ?? 'text'}
+          required={required}
+          {...rest}
+        />
+        {error && (
+          <p className={cn(styles.errorMessage, styles[`font-small-${size}`])}>
+            {error}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---

@@ -52,7 +52,7 @@ export const TextInput = (props: TextInputProps) => {
         </p>
       )}
       <div className={styles.inputWrapper}>
-        {icon && <div>{icon}</div>}
+        {icon && <div className={styles.icon}>{icon}</div>}
         <input
           className={cn(styles.input, styles[size], {
             [styles.error]: error,

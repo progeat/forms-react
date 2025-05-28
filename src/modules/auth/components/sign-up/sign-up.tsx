@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { TextInput } from '../../../../ui/text-input';
 import { Validators } from '../../../../core/helpers/validators.helpers';
+import Logo from '../../../../assets/react.svg?react';
 import styles from './signup.module.css';
 
 type Sex = 'male' | 'female';
@@ -178,6 +179,7 @@ export const Signup = ({ onSubmit, onLink }: SignupProps) => {
         label="Логин"
         description="Введите логин"
         placeholder="Введите логин"
+        icon={<Logo width={15} height={15} />}
         error={inputsError.login}
         radius="md"
         required
